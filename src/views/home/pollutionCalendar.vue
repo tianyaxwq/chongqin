@@ -1,6 +1,17 @@
 <template>
   <div class="pollutionCalendarPage">
     <div class="secondary-toolbar">
+      <span>监测因子：</span>
+      <div class="layoutBox" style="width:110px">
+        <el-select v-model="factorModel" @change="changeChart" placeholder="请选择">
+          <el-option
+            v-for="item in optionData"
+            :key="item.str"
+            :label="item.label"
+            :value="item.str"
+          ></el-option>
+        </el-select>
+      </div>
       <span>月份 :</span>&nbsp;
       <div class="layoutBox" style="width:200px">
         <el-date-picker
@@ -59,10 +70,13 @@ export default {
       dateRange: new Date().format("yyyy-MM"),
       flag: false,
       dateMap: {},
+      optionData: [],
+      factorModel: "",
       levelCont: {}
     };
   },
   mounted() {
+    this.getTabelHeadData()
     this.getData();
   },
   computed: {
@@ -73,6 +87,36 @@ export default {
     }
   },
   methods: {
+    // 获取表头数据
+    getTabelHeadData() {
+      this.$http
+        .get("/dataHandle/yunliBase/queryStationMontFactors", {
+          params: {
+            mns: this.stationMn.stationCode
+          }
+        })
+        .then(res => {
+          if (res.data.code == 0) {
+            this.optionData = [{
+              label: "全部",
+              str: "all",
+              isTrue: true
+            }];
+            res.data.content.dataList.map((el, index) => {
+              this.optionData.push({
+                label: el.monitoring_factor_nm,
+                str: el.cd,
+                isTrue: false
+              });
+            });
+            //this.historicalDataSearch();
+            this.factorModel = this.optionData[0].str;
+          } else {
+          }
+        })
+        .catch(error => {
+        });
+    },
     // 获取数据
     getData() {
       this.value = new Date(this.dateRange);

@@ -180,7 +180,7 @@ export default {
       optionData: [
         { label: "小时", value: 5 },
         { label: "日", value: 1 },
-        // { label: "周", value: 2 },
+        { label: "周", value: 2 },
         { label: "月", value: 3 },
         { label: "年", value: 4 }
       ],

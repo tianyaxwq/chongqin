@@ -7,20 +7,20 @@ Vue.use(Vuex);
 function isArray(o) {
     return Object.prototype.toString.call(o) == '[object Array]';
 }
-axios.interceptors.response.use(response => {
-    return response;
-}, error => {
-    if (error.response) {
-        switch (error.response.status) {
-            // 返回401，清除token信息并跳转到登录页面
-            case 401:
-                localStorage.removeItem('token');
-                window.location.href = "http://116.131.7.1:21300/Intelligent/#/";
-        }
-        // 返回接口返回的错误信息
-        return Promise.reject(error.response.data);
-    }
-});
+// axios.interceptors.response.use(response => {
+//     return response;
+// }, error => {
+//     if (error.response) {
+//         switch (error.response.status) {
+//             // 返回401，清除token信息并跳转到登录页面
+//             case 401:
+//                 localStorage.removeItem('token');
+//                 window.location.href = "http://116.131.7.1:21300/Intelligent/#/";
+//         }
+//         // 返回接口返回的错误信息
+//         return Promise.reject(error.response.data);
+//     }
+// });
 function callAsyncMethod(callback) {
     callback()
 };

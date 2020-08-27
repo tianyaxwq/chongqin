@@ -6,23 +6,72 @@
     element-loading-spinner="loading-type-a"
     element-loading-background="rgba(255, 255, 255, 1)"
   >
+    <div class="water_search">
+      <el-select v-model="value" placeholder="请选择" size="small" style="width: 200px; margin-right: 10px">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
+
+      <template v-if="value == 2">
+        <el-date-picker
+          id="weekSelected"
+          @change="formatWeek"
+          style="width: 200px; margin-right: 10px"
+          v-model="timeFormatDate[0]"
+          type="week"
+          format="yyyyWW"
+          placeholder="选择周">
+        </el-date-picker>
+      </template>
+
+      <template v-if="value == 3">
+        <el-date-picker
+          style="width: 200px; margin-right: 10px"
+          v-model="timeFormatDate[1]"
+          type="month"
+          value-format="yyyyMM"
+          placeholder="选择月">
+        </el-date-picker>
+      </template>
+
+      <template v-if="value == 4">
+        <el-date-picker
+          style="width: 200px; margin-right: 10px"
+          v-model="timeFormatDate[2]"
+          type="year"
+          value-format="yyyy"
+          placeholder="选择年">
+        </el-date-picker>
+      </template>
+
+      <el-button @click="searchData">
+        <i class="iconfont icon-sousuo"></i>查询
+      </el-button>
+      <el-button @click="exportData" type="delet">
+        <i class="iconfont icon-daochu"></i>导出
+      </el-button>
+    </div>
     <!--<div v-if="waterLoading" class="loading-wrap"></div>-->
     <div v-if="waterNoDataState" class="no-data-wrap small no-data-table">
       <p>暂无数据</p>
     </div>
     <el-scrollbar style="height:100%">
       <div class="water-ranking-table">
-        <el-table :data="tableData" empty-text=" " style="width: 100%">
+        <el-table :data="tableData" border empty-text=" " size="small" style="width: 100%">
           <el-table-column type="index" label="排名" width="56"></el-table-column>
-          <el-table-column prop="stnm" label="断面名称" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="stationName" label="断面名称" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="wqg" label="水质等级">
             <template slot-scope="scope">
-              <span v-if="scope.row.wqg == 'null' || !scope.row.wqg">--</span>
+              <span v-if="scope.row.wRealData == null || scope.row.wRealData.wq_tp == 'null' || !scope.row.wRealData.wq_tp">--</span>
               <span v-else>
                 <i
                   class="target-level"
-                  :class="'colorValue' + scope.row.wqg"
-                >{{ transformationText(scope.row.wqg) }}</i>
+                  :class="'colorValue' + scope.row.wRealData.wq_tp"
+                >{{ transformationText(scope.row.wRealData.wq_tp) }}</i>
               </span>
             </template>
           </el-table-column>
@@ -50,7 +99,7 @@
 // import {formatDate} from '../../dateformat.js'
 export default {
   name: "waterRanking",
-  props: ["equipIds", "datas"],
+  props: ["equipIds", "datas", "levels", "controllers", "panelName"],
   watch: {
     tableData(val) {
       if (val.length === 0) {
@@ -62,6 +111,31 @@ export default {
   },
   data() {
     return {
+      timeFormatDate: [
+        "",
+        "",
+        ""
+      ],
+      options: [
+        {
+          value: 1,
+          label: '实时排名'
+        },
+        {
+          value: 2,
+          label: '周排名'
+        },
+        {
+          value: 3,
+          label: '月度排名'
+        },
+        {
+          value: 4,
+          label: '年度排名'
+        },
+      ],
+      value: 1,
+      weekString: "",
       waterLoading: false,
       waterNoDataState: false,
       total: 62, //分页总条数
@@ -80,9 +154,52 @@ export default {
     }
   },
   methods: {
+    formatWeek(val){
+      setTimeout(()=>{
+        this.weekString = $("#weekSelected").val()
+      }, 500)
+    },
     paginationChange(val) {
       //分页页码改变时执行
       this.seachData();
+    },
+    exportData(){
+      // 导出排名
+    },
+    searchData(){
+      if( this.value == 1 ) {
+        this.seachData()
+      } else {
+        // 查询
+        // { types: "WQ11", controllers: this.stationLevelTypes, dataType: "月", time: "202002" }
+        let dateType = ["", "周", "月", "年"]
+        let params = {
+          types: '',
+          controllers: '',
+          dataType: dateType[this.value - 1],
+          time: ""
+        }
+        if( this.value > 1 ) {
+          if( this.value == 2 ) {
+            // params.time = this.weekString
+            // 没有周的数据，暂时用2月的数据
+            params.dataType = "月"
+            params.time = "202002"
+          } else {
+            params.time = this.timeFormatDate[this.value-2]
+          }
+        }
+        if( this.panelName == "站点类型" ) {
+          params.types = this.levels
+        } else if( this.panable == "污染类型" ) {
+
+        } else {
+          params.controllers = this.controllers
+        }
+        this.$http.get("/dataHandle/yunliBase/waterStationDataSortBy", { params: params }).then(res=>{
+          this.tableData = res.data.content.dataList
+        })
+      }
     },
     paginationSizeChange(val) {
       //分页pageSize改变时执行
@@ -109,7 +226,7 @@ export default {
         for (let item of this.datas) {
           if (item.wRealData) {
             item.wRealData.wqg = item.wRealData.wq_tp;
-            this.tableData.push(item.wRealData);
+            this.tableData.push(item);
           }
         }
         return false
@@ -216,9 +333,15 @@ export default {
 .water-ranking-content {
   height: 100%;
   position: relative;
+  .water_search{
+    padding: 10px;
+  }
   .water-ranking-table {
     margin: 0 8px;
     height: 330px;
+  }
+  .el-table--border{
+    border-bottom: 1px solid #EBEEF5 !important;
   }
   .el-table::before {
     background: none;

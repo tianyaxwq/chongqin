@@ -733,41 +733,38 @@
     </el-dialog>
 
     <!-- 年度目标考核现状 -->
-    <el-dialog width="442px" :visible.sync="assessment">
+    <el-dialog width="542px" height="400px" :visible.sync="assessment">
       <div slot="title" class="title">
-        <p class="el-dialog-title">年度目标考核现状</p>
+        <p class="el-dialog-title">今日断面达标率</p>
         <p class="el-dialog-subtitle">{{getrealtime()}}</p>
       </div>
       <div
         class="real-time-monitoring"
-        v-loading="assessmentLoading"
-        element-loading-text="拼命加载中"
-        element-loading-spinner="loading-type-a"
-        element-loading-background="rgba(255, 255, 255, 1)"
+        style="height: 300px"
       >
         <!--<div v-if="assessmentLoading" class="loading-wrap"></div>-->
-        <div v-if="assessmentNoDataState" class="no-data-wrap small">
-          <p>暂无数据</p>
+        <div id="echarts_no" style="width: 100%; height: 300px">
+
         </div>
-        <div id="target-assessment"></div>
-        <ul class="monitoring-chart-legend target-assessment-legend">
-          <li :key="index" v-for="(item,index) in targetAssessment">
-            <i class="legend-icon" :class="item.icon"></i>
-            <span class="legend-name">{{ item.name }}</span>
-            <span class="legend-number">{{ item.value }}</span>
-            <span class="legend-proportion">{{ Math.retain(item.percent)}}%</span>
-          </li>
-        </ul>
+<!--        <div id="target-assessment"></div>-->
+<!--        <ul class="monitoring-chart-legend target-assessment-legend">-->
+<!--          <li :key="index" v-for="(item,index) in targetAssessment">-->
+<!--            <i class="legend-icon" :class="item.icon"></i>-->
+<!--            <span class="legend-name">{{ item.name }}</span>-->
+<!--            <span class="legend-number">{{ item.value }}</span>-->
+<!--            <span class="legend-proportion">{{ Math.retain(item.percent)}}%</span>-->
+<!--          </li>-->
+<!--        </ul>-->
       </div>
     </el-dialog>
 
     <!-- 水质排名 -->
-    <el-dialog width="442px" :visible.sync="waterQualityRanking">
+    <el-dialog width="800px" :visible.sync="waterQualityRanking">
       <div slot="title" class="title">
         <p class="el-dialog-title">水质排名</p>
         <p class="el-dialog-subtitle">{{getrealtime()}}</p>
       </div>
-      <waterRanking ref="crank" :equipIds="equipIds" :datas="siteList" v-if="waterQualityRanking"></waterRanking>
+      <waterRanking ref="crank" :equipIds="equipIds" :panelName="panelName" :controllers="stationLevelTypes" :levels="stationTypes" :datas="siteList" v-if="waterQualityRanking"></waterRanking>
     </el-dialog>
 
     <!-- 水质污染趋势分析 -->
@@ -952,12 +949,12 @@ let functionList = [
     name: "趋势分析",
     cls: "trend-analysis",
     dialog: "trendAnalysisDia"
+  },
+  {
+    name: "断面达标率",
+    cls: "assessment-status",
+    dialog: "assessmentStatusDia"
   }
-  // {
-  //   name: "年度考核",
-  //   cls: "assessment-status",
-  //   dialog: "assessmentStatusDia"
-  // }
   // {
   //   name: "水质公报",
   //   cls: "water-quality-bulletin",
@@ -1311,6 +1308,7 @@ export default {
     };
   },
   created() {
+    // /dataHandle/yunliBase/waterStationDataSortBy?types=WQ08&dataType=%E6%9C%88&time=202002
     this.$store.commit("setLevMenudata", []);
     this.searchTreeData();
     this.searchLevelNum();
@@ -2026,84 +2024,40 @@ export default {
         });
     },
     targetAssessmentChart() {
-      this.assessmentLoading = true;
-      this.assessmentNoDataState = false;
-      this.$http
-        .get("/waterenvapi/realdatas/stationDetail", {
-          params: {
-            queryType: "station",
-            // startTime:formatDate(new Date(),'yyyy-01-01 00:00:00'),
-            // endTime:formatDate(new Date(),'yyyy-MM-dd hh:mm:ss'),
-            startTime: new Date().format("yyyy-MM-dd 00:00:00"),
-            endTime: new Date().format("yyyy-MM-dd hh:mm:ss"),
-            statisType: "minute"
-          }
-        })
-        .then(response => {
-          let dataJson = response.data;
-          if (dataJson.code === 200) {
-            var stations = dataJson.content.dataList;
-            if (stations.length === 0) {
-              this.assessmentNoDataState = true;
-            } else {
-              this.assessmentNoDataState = false;
-            }
-            var up = 0;
-            var down = 0;
-            var balance = 0;
-            //this.equipIds=[];
-            for (var i = 0; i < stations.length; i++) {
-              var station = stations[i];
-              var level = parseInt(station.waterQualityLevel);
-              var target = parseInt(station.targetQualityLevel);
-              if (level > target) {
-                down++;
-              } else if (level < target) {
-                up++;
-              } else {
-                balance++;
+      let echarts = this.$echarts.init(document.getElementById("echarts_no"))
+      let option  = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          x: "right",
+          y: "center",
+          padding:[0, 40, 0, 0],
+          data: ['达标', '未达标']
+        },
+        series: [
+          {
+            name: '今日断面达标率',
+            type: 'pie',
+            radius: '55%',
+            center: ['30%', '50%'],
+            data: [
+              {value: 200, name: '达标', itemStyle: {normal: {color: "#00ff00"}}},
+              {value: 12, name: '未达标', itemStyle: {normal: {color: "red"}}},
+            ],
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
               }
             }
-            var arr = [];
-            arr.push({ value: up, name: "提升" });
-            arr.push({ value: down, name: "下降" });
-            arr.push({ value: balance, name: "持平" });
-            var tarr = [
-              {
-                name: "提升",
-                value: up,
-                percent: (up / stations.length) * 100,
-                icon: "normal"
-              },
-              {
-                name: "持平",
-                value: balance,
-                percent: (balance / stations.length) * 100,
-                icon: "disconnection"
-              },
-              {
-                name: "下降",
-                value: down,
-                percent: (down / stations.length) * 100,
-                icon: "overproof"
-              }
-            ];
-            this.targetAssessment = tarr;
-            let realTimeData = {
-              id: "target-assessment",
-              color: ["#24c768", "#ff0000", "#bdc7d3"],
-              data: arr,
-              total: stations.length,
-              name: "断面数"
-            };
-            this.createAnnularChart(realTimeData);
           }
-          this.assessmentLoading = false;
-        })
-        .catch(error => {
-          this.assessmentLoading = false;
-          this.assessmentNoDataState = true;
-        });
+        ]
+      };
+      echarts.setOption(option)
     },
     setTogglePanel() {
       if (this.togglePanel) {
@@ -2796,7 +2750,7 @@ export default {
             flex: 1;
             text-align: center;
             background-repeat: no-repeat;
-            background-position: 40px center;
+            background-position: 24px center;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -2812,10 +2766,10 @@ export default {
             }
           }
           li:hover {
-            background-position: -52px center;
+            background-position: -70px center;
           }
           li.active {
-            background-position: -52px center;
+            background-position: -70px center;
           }
           .real-time-monitoring {
             background-image: url("../../assets/images/index/fun-list-icon1.png");

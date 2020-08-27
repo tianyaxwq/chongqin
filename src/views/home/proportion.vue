@@ -1,7 +1,18 @@
 <template>
   <div class="proportionPage">
     <div class="showChart">
-      <p>近30天水质类别分析</p>
+      <span>监测因子：</span>
+      <div class="layoutBox" style="width:110px">
+        <el-select v-model="factorModel" @change="changeChart" placeholder="请选择">
+          <el-option
+            v-for="item in optionData"
+            :key="item.str"
+            :label="item.label"
+            :value="item.str"
+          ></el-option>
+        </el-select>
+      </div>
+      <p>近30天水质类别分析1</p>
       <div id="point-statistics" style="width:100%;height: 360px;"></div>
     </div>
     <div class="waterLever">
@@ -42,10 +53,14 @@ export default {
   data() {
     return {
       flag: false,
-      levelCont: {}
+      levelCont: {},
+      optionData: [],
+      factorModel: "",
+      myCharts: {}
     };
   },
   mounted() {
+    this.getTabelHeadData()
     this.getChart();
   },
   computed: {
@@ -56,6 +71,41 @@ export default {
     }
   },
   methods: {
+    changeChart(value) {
+      this.myCharts.clear()
+      this.getChart()
+      console.log(value,"value值")
+    },
+    // 获取表头数据
+    getTabelHeadData() {
+      this.$http
+        .get("/dataHandle/yunliBase/queryStationMontFactors", {
+          params: {
+            mns: this.stationMn.stationCode
+          }
+        })
+        .then(res => {
+          if (res.data.code == 0) {
+            this.optionData = [{
+              label: "全部",
+              str: "all",
+              isTrue: true
+            }];
+            res.data.content.dataList.map((el, index) => {
+              this.optionData.push({
+                label: el.monitoring_factor_nm,
+                str: el.cd,
+                isTrue: false
+              });
+            });
+            //this.historicalDataSearch();
+            this.factorModel = this.optionData[0].str;
+          } else {
+          }
+        })
+        .catch(error => {
+        });
+    },
     getChart() {
       let pointPosition = [];
       let sum = 0
@@ -82,7 +132,7 @@ export default {
               });
             }
             defaultParcent = (this.levelCont['-'] / sum).toFixed(1) * 100
-            let myCharts = this.$echarts.init(
+            this.myCharts = this.$echarts.init(
               document.getElementById("point-statistics")
             );
             let option = {
@@ -116,14 +166,14 @@ export default {
                 trigger: "item",
                 //   formatter: "{a} <br/>{b}: {c} ({d}%)",
                 formatter: function(data) {
-                  return (
-                    data.percent.toFixed(1) +
-                    "%" +
-                    "\n" +
-                    "(" +
-                    data.value +
-                    "天)"
-                  );
+                    return (
+                      data.percent.toFixed(1) +
+                      "%" +
+                      "\n" +
+                      "(" +
+                      data.value +
+                      "天)"
+                    );
                 },
                 show: false
               },
@@ -136,29 +186,34 @@ export default {
                   startAngle: 55,
                   label: {
                     formatter: function(data) {
-                      return (
-                        data.percent.toFixed(1) +
-                        "%" +
-                        "\n" +
-                        "(" +
-                        data.value +
-                        "天)"
-                      );
+                      if( data.percent > 0 ) {
+                        return (
+                          data.percent.toFixed(1) +
+                          "%" +
+                          "\n" +
+                          "(" +
+                          data.value +
+                          "天)"
+                        );
+                      } else {
+                        return ""
+                      }
                     },
                     color: '#000000'
                   },
                   labelLine: {
-                    length: 6,
-                    length2: 10
+                    length: 1,
+                    length2: 1
                   },
                   data: pointPosition
                 }
               ]
             };
-            myCharts.setOption(option);
-            myCharts.on("mouseover", function(params) {
+            this.myCharts.setOption(option);
+            let that = this
+            this.myCharts.on("mouseover", function(params) {
               params.percent = params.percent.toFixed(1);
-              myCharts.setOption({
+              that.myCharts.setOption({
                 title: {
                   text: "占比率",
                   subtext: params.percent + "%"

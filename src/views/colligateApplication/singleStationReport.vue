@@ -89,13 +89,17 @@ import { formatDate } from "../../assets/js/dateformat";
 import { exportTableData } from "../../assets/js/tableExport";
 let dataTypeList = [
   {
+    name: "小时",
+    type: "date"
+  },
+  {
     name: "日报",
     type: "date"
   },
-  // {
-  //   name: "周报",
-  //   type: "week"
-  // },
+  {
+    name: "周报",
+    type: "week"
+  },
   {
     name: "月报",
     type: "month"

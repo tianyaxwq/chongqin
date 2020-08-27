@@ -49,14 +49,14 @@ router.beforeEach((to, from, next) => {
         }
         next()
     } else {
-
+      // console.log("测试测试")
         /* has no token*/
-        window.location.href = "http://116.131.7.1:21300/Intelligent/#/";
-        // if (to.path === '/login') { //这就是跳出循环的关键
-        //     next()
-        // } else {
-        //     next('/login')
-        // }
+        // window.location.href = "http://116.131.7.1:21300/Intelligent/#/";
+        if (to.path === '/login') { //这就是跳出循环的关键
+            next()
+        } else {
+            next('/login')
+        }
 
     }
 })
