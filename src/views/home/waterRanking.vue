@@ -114,14 +114,16 @@ export default {
     }
   },
   mounted() {
-    this.tableData.forEach((item,index)=>{
-      if( item.wRealData && item.wRealData.wq_tp ) {
-        this.dataForm[Number(item.wRealData.wq_tp)] ++
+    setTimeout(()=>{
+      this.tableData.forEach((item,index)=>{
+        if( item.wRealData && item.wRealData.wq_tp ) {
+          this.dataForm[Number(item.wRealData.wq_tp)] ++
+        }
+      })
+      if( JSON.stringify(this.echarts) == "{}" ) {
+        this.drawLine()
       }
-    })
-    if( JSON.stringify(this.echarts) == "{}" ) {
-      this.drawLine()
-    }
+    },1000)
   },
   data() {
     return {

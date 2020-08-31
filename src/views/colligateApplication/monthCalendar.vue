@@ -42,7 +42,7 @@
           <el-table-column label="断面名称" align="center" prop="stnm">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
-                <p>站点名称: {{ scope.row.stnm }}</p>
+                <p>断面名称: {{ scope.row.stnm }}</p>
                 <p>{{getWords(scope.$index)}}</p>
                 <div slot="reference" class="name-wrapper">
                   {{ scope.row.stnm }}
@@ -122,7 +122,11 @@ export default {
       return "Ⅰ类水" + dataTable[0] + "天(" + this.getPecenrt(dataTable[0], count) + ")，Ⅱ类水" + dataTable[1] + "天(" + this.getPecenrt(dataTable[1], count) + ")，Ⅲ类水" + dataTable[2] + "天(" + this.getPecenrt(dataTable[2], count) + ")，Ⅳ类水" + dataTable[3] + "天(" + this.getPecenrt(dataTable[3], count) + ")，Ⅴ类水" + dataTable[4] + "天(" + this.getPecenrt(dataTable[4], count) + ")，劣Ⅴ类水" +dataTable[5]+ "天(" + this.getPecenrt(dataTable[5], count) + ")。"
     },
     getPecenrt(val,count){
-      return ( (val / count) * 100 ).toFixed(1) + "%"
+      if( count > 0 ) {
+        return ( (val / count) * 100 ).toFixed(1) + "%"
+      } else {
+        return "0%"
+      }
     },
     //导出表格
     exportExcel() {
