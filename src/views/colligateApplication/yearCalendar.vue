@@ -204,6 +204,9 @@
             </div>
 
             <yf-Datastatus :dataStatus="bqDataStatus" v-if="bqDataStatus == 'no'"></yf-Datastatus>
+            <div id="myEcharts_nl" style="height: 300px">
+
+            </div>
           </div>
         </div>
       </el-scrollbar>
@@ -247,6 +250,67 @@ export default {
     //切换年份
     dateChange(val) {
       this.flag = false;
+    },
+    drawLine() {
+      this.echarts = this.$echarts.init(document.getElementById("myEcharts_nl"))
+      let color = [
+        "#CCFFFF",
+        "#00CCFF",
+        "#00FF00",
+        "#FFFF00",
+        "#FF9B00",
+        "#FF0000",
+        "#E8E8E8",
+      ]
+      let option  = {
+        title: {
+          show: true,
+          text: "年度水质类别占比"
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          x: "right",
+          y: "center",
+          padding:[0, 80, 0, 0],
+          data: ['Ⅰ类', 'Ⅱ类', "Ⅲ类", "Ⅳ类", "Ⅴ类", "劣Ⅴ类"]
+        },
+        series: [
+          {
+            name: '水质类别占比',
+            type: 'pie',
+            radius: '55%',
+            center: ['30%', '50%'],
+            data: [
+              {value: 48, name: 'Ⅰ类', itemStyle: {normal: {color: color[0]}}},
+              {value: 68, name: 'Ⅱ类', itemStyle: {normal: {color: color[1]}}},
+              {value: 54, name: 'Ⅲ类', itemStyle: {normal: {color: color[2]}}},
+              {value: 100, name: 'Ⅳ类', itemStyle: {normal: {color: color[3]}}},
+              {value: 80, name: 'Ⅴ类', itemStyle: {normal: {color: color[4]}}},
+              {value: 24, name: '劣Ⅴ类', itemStyle: {normal: {color: color[5]}}},
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} \n {c} ({d}%)'
+                }
+              }
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+      this.echarts.setOption(option)
     },
     // 获取数据
     getData(flag) {
@@ -366,7 +430,12 @@ export default {
         });
     }
   },
-  mounted() {},
+  mounted() {
+    let that = this
+    setTimeout(()=>{
+      that.drawLine()
+    }, 2000)
+  },
   created() {}
 };
 </script>

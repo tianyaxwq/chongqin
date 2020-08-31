@@ -14,6 +14,17 @@
             value-format="yyyy-MM-dd"
           ></sl-date-picker>
         </div>&emsp;&emsp;
+        <span>报警类型 :</span>&nbsp;
+        <div class="layoutBox" style="width:100px">
+          <el-select v-model="alarmTypeId" placeholder="请选择">
+            <el-option
+              v-for="item in types"
+              :key="item.alarmTypeId"
+              :label="item.alarmTypeName"
+              :value="item.alarmTypeId"
+            ></el-option>
+          </el-select>
+        </div>
         <span>报警指标 :</span>&nbsp;
         <div class="layoutBox" style="width:100px">
           <el-select v-model="factorModel" placeholder="请选择">
@@ -128,6 +139,8 @@ export default {
       dateRange: "",
       totalDay: "",
       tableData: [],
+      alarmTypeId: "",
+      types: [],
       currentPage: 1, //分页组件当前页
       pageSize: 15, //分页每页多少条数据
       totalRecords: 0, //总条数
@@ -179,11 +192,19 @@ export default {
       factorModel1: "",
       factorData1: [
         {
-          projectName: "连续高报警",
+          projectName: "一级报警",
           projectCode: "1"
         },
         {
-          projectName: "超标报警",
+          projectName: "二级报警",
+          projectCode: "2"
+        },
+        {
+          projectName: "三级报警",
+          projectCode: "2"
+        },
+        {
+          projectName: "四级报警",
           projectCode: "2"
         }
       ],
@@ -261,6 +282,7 @@ export default {
             // projectCode: this.factorModel,
             pageNumber: this.currentPage - 1,
             pageSize: this.pageSize,
+            alarmTypeId: this.alarmTypeId,
             mns: this.stationId,
             appId: "E9F262C16F814392AD5FDE5D217391BE"
           }
@@ -280,6 +302,10 @@ export default {
     let start = new Date(new Date().getTime() - 3600 * 1000 * 24 * 30);
     let end = new Date();
     this.dateRange = [start, end];
+    // 获取报警类型
+    this.$http.get("/Statistics-Service/alarmEvnet/alarmType",{params:{dataStatus: 1}}).then(res=>{
+      this.types = res.data.content.dataList
+    })
   },
   computed: {
     totalPage() {

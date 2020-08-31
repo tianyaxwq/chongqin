@@ -111,14 +111,16 @@ export default {
       } else {
         this.waterNoDataState = false;
       }
-      this.tableData.forEach((item,index)=>{
-        if( item.wRealData && item.wRealData.wq_tp ) {
-          this.dataForm[Number(item.wRealData.wq_tp)] ++
-        }
-      })
-      if( JSON.stringify(this.echarts) == "{}" ) {
-        this.drawLine()
+    }
+  },
+  mounted() {
+    this.tableData.forEach((item,index)=>{
+      if( item.wRealData && item.wRealData.wq_tp ) {
+        this.dataForm[Number(item.wRealData.wq_tp)] ++
       }
+    })
+    if( JSON.stringify(this.echarts) == "{}" ) {
+      this.drawLine()
     }
   },
   data() {
