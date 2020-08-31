@@ -121,7 +121,7 @@
               :style="!dataStatus?'opacity:1':'opacity:0'"
             ></div>
           </div>
-          <div class="numTable">
+          <div class="numTable" style="margin-right: 10px">
             <p class="title">
               <img src="../../assets/images/companyDetail/bjNum.png" alt /> 今日报警次数排名
             </p>
@@ -138,6 +138,26 @@
                 <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
                 <el-table-column prop="stationName" label="断面名称"></el-table-column>
                 <el-table-column prop="count" width="100" label="报警次数"></el-table-column>
+              </el-table>
+            </div>
+          </div>
+          <div class="numTable">
+            <p class="title">
+              <img src="../../assets/images/companyDetail/bjNum.png" alt /> 今日超标倍数排名
+            </p>
+            <div style="padding: 8px">
+              <el-table
+                :data="numTableData1"
+                style="height: calc(100% - 41px);"
+                border
+                v-loading="loadingThree"
+                element-loading-text="加载中"
+                element-loading-spinner="loading-type-a"
+                element-loading-background="rgba(255, 255, 255, 1)"
+              >
+                <el-table-column type="index" label="序号" width="50" align="center"></el-table-column>
+                <el-table-column prop="stationName" label="断面名称"></el-table-column>
+                <el-table-column prop="count" width="100" label="超标倍数"></el-table-column>
               </el-table>
             </div>
           </div>
@@ -160,6 +180,36 @@ export default {
       optionData: [],
       tableData: [],
       numTableData: [],
+      numTableData1: [
+        {
+          "count" : 2.5,
+          "stationName" : "望亭桥"
+        }, {
+          "count" : 2.2,
+          "stationName" : "北际头"
+        }, {
+          "count" : 2.1,
+          "stationName" : "蒲口"
+        }, {
+          "count" : 1.8,
+          "stationName" : "东向阳"
+        }, {
+          "count" : 1.6,
+          "stationName" : "思乡桥"
+        }, {
+          "count" : 1.5,
+          "stationName" : "后赵桥"
+        }, {
+          "count" : 1.5,
+          "stationName" : "膳马庙村北"
+        }, {
+          "count" : 1.4,
+          "stationName" : "寨里"
+        }, {
+          "count" : 1.1,
+          "stationName" : "任庄"
+        }
+      ],
       currentPage: 1, //分页组件当前页
       pageSize: 10, //分页每页多少条数据
       totalRecords: 0, //总条数
