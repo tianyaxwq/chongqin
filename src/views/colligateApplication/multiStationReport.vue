@@ -64,6 +64,7 @@
                 :key="index"
                 v-for="(item,index) in headcolumn"
                 :label="item.monitoring_factor_nm"
+                sortable
               >
                 <el-table-column width="140" :label="item.monitoring_factor_dw">
                   <template slot-scope="scope">
@@ -172,20 +173,26 @@ export default {
       statisDate: "",
       headtimetype: "date",
       loading: true,
-      format: "",
+      format: "yyyy-MM-dd HH",
       factors: []
     };
   },
   methods: {
     dataTypeToggle(index) {
       this.dataType = index;
-      if (index == 0) {
+      if(index == 0){
+        this.headtimetype = "date";
+        this.format = "yyyy-MM-dd HH";
+      }else if (index == 1) {
         this.headtimetype = "date";
         this.format = "";
-      } else if (index == 1) {
+      } else if(index == 2) {
+          this.headtimetype = "week";
+          this.format = "yyyy 第 WW 周";
+      } else if (index == 3) {
         this.headtimetype = "month";
         this.format = "";
-      } else if (index == 2) {
+      } else if (index == 4) {
         this.headtimetype = "year";
         this.format = "";
       }
@@ -287,6 +294,7 @@ export default {
         .then(res => {
           if (res.data.code == 0) {
             this.headcolumn = res.data.content.dataList;
+            console.log(this.headcolumn, "headcolumn")
             let factorList = [];
             this.headcolumn.map(el => {
               factorList.push(el.cd);

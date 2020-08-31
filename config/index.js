@@ -33,13 +33,14 @@ module.exports = {
             },
             '/Statistics-Service': { //综合应用服务
                 target: 'http://116.131.7.1:21300/Statistics-Service',
-                // target: 'http://192.168.171.45:43033/Statistics-Service', // 刘乐法
+                // target: 'http://192.168.31.53:43033/Statistics-Service', // 刘乐法
                 pathRewrite: {
                     '^/Statistics-Service': '/'
                 }
             },
             '/waterEnvXA': { //水环境管理服务（雄安新区）
                 target: 'http://116.131.7.1:21300/waterEnvXA',
+                // target: 'http://192.168.31.53:43011/waterEnvXA',
                 //  target: 'http://192.168.171.34:43011/waterEnvXA',
                 pathRewrite: {
                     '^/waterEnvXA': '/'

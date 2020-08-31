@@ -14,8 +14,8 @@
             value-format="yyyy-MM-dd"
           ></sl-date-picker>
         </div>&emsp;&emsp;
-        <!-- <span>监测项目 :</span>&nbsp;
-        <div class="layoutBox" style="width:200px">
+        <span>报警指标 :</span>&nbsp;
+        <div class="layoutBox" style="width:100px">
           <el-select v-model="factorModel" placeholder="请选择">
             <el-option
               v-for="item in factorData"
@@ -24,7 +24,18 @@
               :value="item.projectCode"
             ></el-option>
           </el-select>
-        </div>&emsp;&emsp;-->
+        </div>
+        <span>报警级别 :</span>&nbsp;
+        <div class="layoutBox" style="width:100px">
+          <el-select v-model="factorModel1" placeholder="请选择">
+            <el-option
+              v-for="item in factorData1"
+              :key="item.projectCode"
+              :label="item.projectName"
+              :value="item.projectCode"
+            ></el-option>
+          </el-select>
+        </div>
         <el-button @click="getData('search')">
           <i class="iconfont icon-sousuo"></i>查询
         </el-button>
@@ -163,6 +174,17 @@ export default {
         {
           projectName: "化学需氧量",
           projectCode: "w01018"
+        }
+      ],
+      factorModel1: "",
+      factorData1: [
+        {
+          projectName: "连续高报警",
+          projectCode: "1"
+        },
+        {
+          projectName: "超标报警",
+          projectCode: "2"
         }
       ],
       fieldList: []

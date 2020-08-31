@@ -2047,6 +2047,14 @@ export default {
               {value: 200, name: '达标', itemStyle: {normal: {color: "#00ff00"}}},
               {value: 12, name: '未达标', itemStyle: {normal: {color: "red"}}},
             ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} \n {c} ({d}%)'
+                }
+              }
+            },
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,

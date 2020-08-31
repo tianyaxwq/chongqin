@@ -61,7 +61,7 @@
     </div>
     <el-scrollbar style="height:100%">
       <div class="water-ranking-table">
-        <el-table :data="tableData" border empty-text=" " size="small" style="width: 100%">
+        <el-table :data="tableData" border empty-text=" " size="small" style="width: 100%" ref="table">
           <el-table-column type="index" label="排名" width="56"></el-table-column>
           <el-table-column prop="stationName" label="断面名称" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="wqg" label="水质等级">
@@ -76,6 +76,9 @@
             </template>
           </el-table-column>
         </el-table>
+        <div id="myEcharts" style="height: 300px">
+
+        </div>
       </div>
       <!-- <div class="water-ranking-paging">
         <el-pagination
@@ -97,6 +100,7 @@
 
 <script>
 // import {formatDate} from '../../dateformat.js'
+import { exportTableData } from "../../assets/js/tableExport";
 export default {
   name: "waterRanking",
   props: ["equipIds", "datas", "levels", "controllers", "panelName"],
@@ -107,10 +111,19 @@ export default {
       } else {
         this.waterNoDataState = false;
       }
+      this.tableData.forEach((item,index)=>{
+        if( item.wRealData && item.wRealData.wq_tp ) {
+          this.dataForm[Number(item.wRealData.wq_tp)] ++
+        }
+      })
+      if( JSON.stringify(this.echarts) == "{}" ) {
+        this.drawLine()
+      }
     }
   },
   data() {
     return {
+      dataForm: [0, 0, 0, 0, 0, 0],
       timeFormatDate: [
         "",
         "",
@@ -142,6 +155,7 @@ export default {
       pageSize: 10, //分页每页多少条数据
       pageList: [10, 15, 20], //设置每页多少条
       tableData: [],
+      echarts: {},
       currentPage: 1
     };
   },
@@ -165,6 +179,56 @@ export default {
     },
     exportData(){
       // 导出排名
+      let { table } = this.$refs;
+      let tableBox = table.$el;
+      let header = tableBox.querySelector(".el-table__header");
+      let title = "站点水质排名";
+      let dateType = ["", "周", "月", "年"]
+      let params = {
+        headerProp: "stationName,wq_tp",
+        types: '',
+        controllers: '',
+        dataType: dateType[this.value - 1],
+        time: ""
+      }
+      if( this.value > 1 ) {
+        if( this.value == 2 ) {
+          // params.time = this.weekString
+          // 没有周的数据，暂时用2月的数据
+          params.dataType = "月"
+          params.time = "202002"
+        } else {
+          params.time = this.timeFormatDate[this.value-2]
+        }
+      }
+      if( this.panelName == "站点类型" ) {
+        params.types = this.levels
+      } else if( this.panable == "污染类型" ) {
+
+      } else {
+        params.controllers = this.controllers
+      }
+      // this.$http.post("/waterEnvXA/exports/waterDataRankExcel", params, {responseType:'blob'}).then(res=>{
+      //   const blob =new Blob([res.data], {type:'application/octet-stream;charset=utf-8'});
+      //   const fileName ='站点水质排名.xlsx';
+      //   const elink =document.createElement('a');
+      //   elink.download =fileName;
+      //   elink.style.display ='none';
+      //   elink.href =URL.createObjectURL(blob);
+      //   document.body.appendChild(elink);
+      //   elink.click();
+      //   URL.revokeObjectURL(elink.href);
+      //   document.body.removeChild(elink);
+      // })
+      console.log(header, title)
+      exportTableData(
+        header,
+        title,
+        "",
+        "1",
+        "/Statistics-Service/exports/waterDataRankExcel",
+        params
+      );
     },
     searchData(){
       if( this.value == 1 ) {
@@ -198,8 +262,77 @@ export default {
         }
         this.$http.get("/dataHandle/yunliBase/waterStationDataSortBy", { params: params }).then(res=>{
           this.tableData = res.data.content.dataList
+          this.dataForm = [0, 0, 0, 0, 0, 0]
+          this.tableData.forEach((item,index)=>{
+            if( item.wRealData && item.wRealData.wq_tp ) {
+              this.dataForm[Number(item.wRealData.wq_tp)] ++
+            }
+          })
+          this.echarts.clear()
+          this.drawLine()
         })
       }
+    },
+    drawLine() {
+      this.echarts = this.$echarts.init(document.getElementById("myEcharts"))
+      let color = [
+        "#CCFFFF",
+        "#00CCFF",
+        "#00FF00",
+        "#FFFF00",
+        "#FF9B00",
+        "#FF0000",
+        "#E8E8E8",
+      ]
+      let option  = {
+        title: {
+          show: true,
+          text: "水质类别占比"
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b} : {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          x: "right",
+          y: "center",
+          padding:[0, 80, 0, 0],
+          data: ['Ⅰ类', 'Ⅱ类', "Ⅲ类", "Ⅳ类", "Ⅴ类", "劣Ⅴ类"]
+        },
+        series: [
+          {
+            name: '水质类别占比',
+            type: 'pie',
+            radius: '55%',
+            center: ['30%', '50%'],
+            data: [
+              {value: this.dataForm[0], name: 'Ⅰ类', itemStyle: {normal: {color: color[0]}}},
+              {value: this.dataForm[1], name: 'Ⅱ类', itemStyle: {normal: {color: color[1]}}},
+              {value: this.dataForm[2], name: 'Ⅲ类', itemStyle: {normal: {color: color[2]}}},
+              {value: this.dataForm[3], name: 'Ⅳ类', itemStyle: {normal: {color: color[3]}}},
+              {value: this.dataForm[4], name: 'Ⅴ类', itemStyle: {normal: {color: color[4]}}},
+              {value: this.dataForm[5], name: '劣Ⅴ类', itemStyle: {normal: {color: color[5]}}},
+            ],
+            itemStyle: {
+              normal: {
+                label: {
+                  show: true,
+                  formatter: '{b} \n {c} ({d}%)'
+                }
+              }
+            },
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      };
+      this.echarts.setOption(option)
     },
     paginationSizeChange(val) {
       //分页pageSize改变时执行

@@ -34,18 +34,14 @@
           value-format="yyyy-MM-dd"
         ></sl-date-picker>
       </div>
-      <!-- <div class="layoutBox" style="width:250px" v-show="value == 2">
+      <div class="layoutBox" style="width:250px" v-show="value == 2">
         <el-date-picker
-          v-model="weekRange"
-          type="daterange"
+          v-model="week"
+          type="week"
           align="left"
-          range-separator="~"
-          format="yyyy-MM-dd"
-          value-format="yyyy-MM-dd"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+          format="yyyy年第WW周"
         ></el-date-picker>
-      </div>-->
+      </div>
       <div class="layoutBox" style="width:260px" v-show="value == 3">
         <sl-date-picker
           range-separator="至"
@@ -103,7 +99,7 @@ export default {
   data() {
     return {
       value1: [],
-      dateRange: [],
+      week: "",
       factorModel: "",
       factorData: [
         {
@@ -274,12 +270,12 @@ export default {
         ];
       } else if (v == 2) {
         // zhou
-        let startTime = new Date().setDate(new Date().getDate() - 7);
-        let endTime = new Date();
-        this.weekRange = [
-          new Date(startTime).format("yyyy-MM-dd"),
-          endTime.format("yyyy-MM-dd")
-        ];
+        // let startTime = new Date().setDate(new Date().getDate() - 7);
+        // let endTime = new Date();
+        // this.weekRange = [
+        //   new Date(startTime).format("yyyy-MM-dd"),
+        //   endTime.format("yyyy-MM-dd")
+        // ];
       } else if (v == 3) {
         // yue
         let startTime = new Date().setMonth(new Date().getMonth() - 1);

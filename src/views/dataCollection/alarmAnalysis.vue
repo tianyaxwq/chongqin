@@ -468,7 +468,7 @@ export default {
                   data: seriesData.sort(function(a, b) {
                     return a.value - b.value;
                   }),
-                  roseType: "radius",
+                  // roseType: "radius",
                   label: {
                     // formatter: "{b} {d}% ",
                     formatter: function(data) {
@@ -493,11 +493,11 @@ export default {
                     length: 10,
                     length2: 20
                   },
-                  animationType: "scale",
-                  animationEasing: "elasticOut",
-                  animationDelay: function(idx) {
-                    return Math.random() * 200;
-                  }
+                  // animationType: "scale",
+                  // animationEasing: "elasticOut",
+                  // animationDelay: function(idx) {
+                  //   return Math.random() * 200;
+                  // }
                 }
               ]
             };

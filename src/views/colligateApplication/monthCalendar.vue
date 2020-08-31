@@ -116,6 +116,7 @@ export default {
         timeType: "month",
         pattern: "yyyy-MM-dd"
       };
+      console.log(params,"params")
       exportTableData(
         header,
         title,
