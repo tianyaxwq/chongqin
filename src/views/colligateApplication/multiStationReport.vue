@@ -65,6 +65,7 @@
                 v-for="(item,index) in headcolumn"
                 :label="item.monitoring_factor_nm"
                 sortable
+                :prop="item.cd"
               >
                 <el-table-column width="140" :label="item.monitoring_factor_dw">
                   <template slot-scope="scope">
@@ -73,7 +74,7 @@
                   </template>
                 </el-table-column>
               </el-table-column>
-              <el-table-column prop="level" label="水质类别">
+              <el-table-column prop="level" label="水质类别" sortable>
                 <template slot-scope="scope">
                   <span v-if="!scope.row.level">--</span>
                   <span
@@ -229,8 +230,12 @@ export default {
         let timeType = "";
         let weekSatrt = "";
         let weekEnd = "";
-        if (this.headtimetype == "date") {
-          d = new Date(this.dataValue).format("yyyy-MM-dd");
+        if (this.headtimetype == "date" || this.headtimetype == "week") {
+          if( this.headtimetype == "week" ) {
+            d = new Date("2020-08-30").format("yyyy-MM-dd");
+          } else {
+            d = new Date(this.dataValue).format("yyyy-MM-dd");
+          }
           timeType = "day";
         } else if (this.headtimetype == "month") {
           d = new Date(this.dataValue).format("yyyy-MM");

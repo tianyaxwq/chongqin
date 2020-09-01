@@ -322,6 +322,9 @@ export default {
         .catch(error => {});
     },
     getEchartData() {
+      if( this.value == 2 ) {
+        this.dateRange = ["2020-08-24", "2020-09-01"]
+      }
       if (
         (this.dateRange[0] != null && this.dateRange[1] != null) ||
         (this.value1[0] != null && this.value1[1] != null) ||
@@ -338,9 +341,9 @@ export default {
           endTime = this.dateRange[1];
           type = "day";
         } else if (this.value == 2) {
-          startTime = this.weekRange[0];
-          endTime = this.weekRange[1];
-          type = "week";
+          startTime = this.dateRange[0];
+          endTime = this.dateRange[1];
+          type = "day";
         } else if (this.value == 3) {
           startTime = this.month[0];
           endTime = this.month[1];

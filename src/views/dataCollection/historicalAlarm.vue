@@ -91,6 +91,13 @@
               <span>{{scope.row.alarmTypeName == "null" || !scope.row.alarmTypeName ? "--" : scope.row.alarmTypeName}}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="alarmLevel" label="报警等级" width="100">
+            <template slot-scope="scope">
+              <span v-if="scope.row.alarmLevel == 'null' || !scope.row.alarmLevel">--</span>
+              <span v-else-if="scope.row.alarmLevel == 1">一级报警</span>
+              <span v-else>二级报警</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="alarmTypeName" label="当前水质" width="100">
             <template slot-scope="scope">
               <!-- 水质等级从0开始 -->
